@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-sans-ui);
+  --font-mono: var(--font-mono-ui);
+}
+
+@theme {
+  /* ------------------------------------------------------------------
+     Palette.
+
+     Layered dark surfaces rather than a near-black console: each level is a
+     step lighter than the one behind it, so depth comes from the surfaces
+     themselves and a panel reads as sitting ABOVE the chart without needing a
+     hard 1px box around everything.
+
+     Slightly blue-shifted greys (not neutral) — against the amber accent and
+     the gold this app charts, a pure grey reads as dirty.
+     ------------------------------------------------------------------ */
+  --color-term-bg: #0e1015;        /* app background, and the chart canvas */
+  --color-term-panel: #171a21;     /* rails, bars, inline panels */
+  --color-term-raised: #1d212a;    /* dialogs and anything floating above */
+  --color-term-border: #252a34;    /* hairlines between surfaces */
+  --color-term-border-strong: #343b48;
+  --color-term-text: #e7eaf0;
+  --color-term-dim: #9aa2af;
+  --color-term-muted: #6c7482;
+  --color-term-accent: #e5a83a;    /* gold, for the metal this charts */
+
+  /* Semantic, NOT candle colours: profit/loss in the tester, risk/reward in
+     the position inspector, and every error overlay use these. Candle colours
+     live in ChartPanel (white up / blue down) and are deliberately separate —
+     repointing these would turn error messages blue. */
+  --color-term-up: #26a69a;
+  --color-term-down: #ef5350;
+
+  /* Corner radius. A 0-radius box is the single most "terminal" thing in a
+     UI; everything that reads as a surface gets one of these. */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  /* ------------------------------------------------------------------
+     Type scale.
+
+     The UI was built on ad-hoc `text-[9px]` / `text-[10px]` values — 100 of
+     123 size declarations sat at 9 or 10px, with a few at 7px. That is below
+     comfortable reading size for a screen you stare at for hours.
+
+     These are named so a size is chosen from the scale rather than invented
+     per component, and so a future adjustment is one edit rather than 123.
+     Nothing in the UI may go below `--text-micro`.
+     ------------------------------------------------------------------ */
+  --text-micro: 11px;     /* was 7-9px: badges, axis-adjacent hints */
+  --text-tiny: 12px;      /* was 9px:  secondary labels */
+  --text-small: 13px;     /* was 10px: the default for panel body text */
+  --text-body: 14px;      /* was 11px: primary labels, table cells */
+  --text-head: 16px;      /* section headings, headline stats */
+  --text-lead: 18px;      /* large stat values */
+  --text-display: 22px;   /* the one or two numbers that carry a panel */
+
+  --text-micro--line-height: 1.45;
+  --text-tiny--line-height: 1.45;
+  --text-small--line-height: 1.5;
+  --text-body--line-height: 1.5;
+  --text-head--line-height: 1.35;
+  --text-lead--line-height: 1.3;
+  --text-display--line-height: 1.2;
+}
+
+/*
+  One family everywhere.
+
+  `next/font` only defines the variable it was given, and both faces are now the
+  same Ubuntu instance — so `--font-mono-ui` would never be written at all.
+  Pointing it at the sans variable keeps every `font-mono` class and the canvas
+  label lookup working, while resolving to Ubuntu.
+*/
+:root {
+  --font-mono-ui: var(--font-sans-ui);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-term-bg);
+  color: var(--color-term-text);
+  font-family: var(--font-sans-ui), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--text-small);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Numbers must not jitter as the crosshair moves. Ubuntu's figures are already
+   uniform width; this is belt and braces for the fallback face. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Chrome's default scrollbars are a hard grey slab on dark surfaces. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-term-border-strong) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-term-border-strong);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-term-muted);
+  border: 3px solid transparent;
+  background-clip: content-box;
+}

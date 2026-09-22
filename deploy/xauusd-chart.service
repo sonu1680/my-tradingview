@@ -1,0 +1,49 @@
+# systemd unit for the XAUUSDm chart terminal.
+#
+# Install:
+#   sudo cp deploy/xauusd-chart.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now xauusd-chart
+#
+# Logs:  journalctl -u xauusd-chart -f
+
+[Unit]
+Description=XAUUSDm chart terminal (Next.js)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/xauusd-chart
+
+# The candle CSVs live OUTSIDE the app directory, so a redeploy never touches
+# them and they never have to sit in the git repo. `lib/candles/store.ts` reads
+# this variable and falls back to ./candle_data when it is unset.
+Environment=NODE_ENV=production
+Environment=CANDLE_DATA_DIR=/var/lib/xauusd/candle_data
+Environment=PORT=3000
+# Bind to loopback only: nginx is the public face. Drop this line to expose the
+# port directly (then the security group is the only thing protecting it).
+Environment=HOSTNAME=127.0.0.1
+
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start
+
+Restart=always
+RestartSec=3
+
+# Measured: 347 MB RSS with all 21 timeframes resident. The cap is generous
+# headroom, not a target — if it is ever hit, the process restarts rather than
+# taking the box down with it.
+MemoryMax=1200M
+
+# The process only ever reads the data directory and writes nothing outside it.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/var/lib/xauusd
+ReadWritePaths=/opt/xauusd-chart/.next
+
+[Install]
+WantedBy=multi-user.target
